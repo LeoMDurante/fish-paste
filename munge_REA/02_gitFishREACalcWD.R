@@ -11,9 +11,12 @@ source("lib/fish_team_functions.R")
 load("TMPwd.Rdata")
 
 ## FILTER BY LOCATION, YEARS, METHOD, AND OBS_TYPE HERE!
-wd[!wd$OBS_TYPE %in% c("U", "I", "N"), ]$COUNT<-0
-wd<-subset(wd, wd$METHOD %in% c("nSPC"))
+wd[!wd$OBS_TYPE %in% c("U", "I", "N"), ]$COUNT<-0 #These are the data taken within the standardized survey methodology, other categories vary by diver, quantity of underwater work etc. 
+wd<-subset(wd, wd$METHOD %in% c("nSPC")) #Filter for stationary point count methodology
 wd<-droplevels(wd)
+
+#wd_MHI<-subset(wd, wd$REGION_NAME %in% c("Main Hawaiian Islands")) #Filter for data collected in the Main Hawaiian Islands
+#wd_MHI<-droplevels(wd_MHI)
 
 #base information about the survey - field names should match those in input file (obviously!)
 UNIQUE_SURVEY<-c("SITEVISITID","METHOD")
@@ -75,9 +78,9 @@ for(i in 1:(length(data.cols)))
 }
 
 #CAP FISH DATA VALUES TO SOMETHING CLOSE To 97.5% quantile
-wsd[wsd$TotFish>450,]$TotFish<-450
+#wsd[wsd$TotFish>450,]$TotFish<-450
 wsd[wsd$PISCIVORE>300,]$PISCIVORE<-300
-wsd[wsd$PLANKTIVORE>100,]$PLANKTIVORE<-100 # KM changed from 50
+#wsd[wsd$PLANKTIVORE>100,]$PLANKTIVORE<-100 # KM changed from 50
 wsd[wsd$PRIMARY>80,]$PRIMARY<-80 # km changed from 85
 wsd[wsd$SECONDARY>45,]$SECONDARY<-45 # KM changed from 40
 

@@ -1,6 +1,7 @@
 rm(list=ls())
 library(gdata)             # needed for drop_levels()
 library(reshape)           # reshape library inclues the cast() function used below
+library (dplyr)
 
 #LOAD LIBRARY FUNCTIONS ... 
 source("lib/core_functions.R")
@@ -11,7 +12,7 @@ source("lib/fish_team_functions.R")
 sectors<-read.csv("data/Sectors-Strata-Areas.csv", stringsAsFactors=FALSE)
 # load site master to merge with sector names
 sm<-read.csv("data/SURVEY MASTER.csv")
-sm$SITE<-SiteNumLeadingZeros(sm$SITE)
+sm$SITE<-SiteNumLeadingZeros(sm$SITE)  #Gives an error, maybe the SITE names do not need fixing
 
 ## LOAD AND CLEAN fish data
 load("data/ALL_REA_FISH_RAW.rdata")

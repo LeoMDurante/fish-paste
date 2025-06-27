@@ -54,9 +54,9 @@ for(i in 1:length(SCHEMES)){
 	tmp2$SCHEME<-SCHEMES[i]
 	names(tmp2)<- c("SEC_NAME", "ANALYSIS_SEC", "ANALYSIS_SCHEME")
 	
-	tmp<-aggregate(sectors$AREA_HA, sectors[,c(SCHEMES[i], "STRATA")], sum)
+	tmp<-aggregate(sectors$AREA_HA_2023, sectors[,c(SCHEMES[i], "STRATA")], sum)
 	tmp$SCHEME<-SCHEMES[i]
-	names(tmp)<-c("ANALYSIS_SEC", "STRATA", "AREA_HA", "ANALYSIS_SCHEME")
+	names(tmp)<-c("ANALYSIS_SEC", "STRATA", "AREA_HA_2023", "ANALYSIS_SCHEME")
 	if(i==1){
 		st<-tmp
 		as<-tmp2
@@ -73,13 +73,13 @@ as$x<-NULL
 wsd<-merge(wsd, as, by=c("SEC_NAME", "ANALYSIS_SCHEME"), all.x=T)  # add ANALYSISS_SCHEME for tthis sector and sceheme combination
 unique(wsd[is.na(wsd$ANALYSIS_SCHEME), c("ISLAND", "ANALYSIS_SEC", "SEC_NAME", "OBS_YEAR", "ANALYSIS_YEAR", "ANALYSIS_SCHEME", "STRATA")])
 
-cast(st, ANALYSIS_SEC ~ ANALYSIS_SCHEME, value="AREA_HA", sum)
+cast(st, ANALYSIS_SEC ~ ANALYSIS_SCHEME, value="AREA_HA_2023", sum)
 wsd<-merge(wsd, st, by=c("ANALYSIS_SCHEME", "ANALYSIS_SEC", "STRATA"), all.x=T)
 #check if some are missing an AREA_HA .. which means that they didnt get into the stratification scheme properly
 unique(wsd[is.na(wsd$AREA_HA), c("ISLAND", "ANALYSIS_SEC", "SEC_NAME", "OBS_YEAR", "ANALYSIS_YEAR", "ANALYSIS_SCHEME", "STRATA")])
 
 #NOW CHECK HOW MANY REPS WE HAVE PER STRATA
-a<-cast(wsd, REGION + ANALYSIS_SCHEME + ISLAND + ANALYSIS_SEC + ANALYSIS_YEAR ~ STRATA, value="AREA_HA", length); a
+a<-cast(wsd, REGION + ANALYSIS_SCHEME + ISLAND + ANALYSIS_SEC + ANALYSIS_YEAR ~ STRATA, value="AREA_HA_2023", length); a
 
 # OUTPUT sites per years (appendix 3) -------------------------------------
 save(a, file="sites_year_reef_zone_depth_bin.rdata") ## use this for table in appendix 3 - see appendices R file
@@ -97,7 +97,7 @@ ADDITIONAL_POOLING_BY<-c("METHOD", "ANALYSIS_YEAR")                             
 
 #generate within strata means and vars
 POOLING_LEVEL<-c(SPATIAL_POOLING_BASE, ADDITIONAL_POOLING_BY)
-dps<-Calc_PerStrata(wsd, data.cols, c(POOLING_LEVEL, "AREA_HA"))
+dps<-Calc_PerStrata(wsd, data.cols, c(POOLING_LEVEL, "AREA_HA_2023"))
 #save(dps,file="tmp REA per strata.RData")
 head(dps$Mean)
 
@@ -110,27 +110,27 @@ dps$SampleSE<-dps$SampleSE[dps$SampleSE$N>1,]
 #SOME EXAMPLES OF POOLING
 # e.g. SAVE BY ISLAND AND REEF_ZONE PER YEAR
 OUTPUT_LEVEL<-c("REGION", "ISLAND", "REEF_ZONE", "ANALYSIS_YEAR") 
-dp<-Calc_Pooled_Simple(dps$Mean, dps$SampleVar, data.cols, OUTPUT_LEVEL, "AREA_HA")
+dp<-Calc_Pooled_Simple(dps$Mean, dps$SampleVar, data.cols, OUTPUT_LEVEL, "AREA_HA_2023")
 save(dp, file="data_pooled_is_yr_RZ.Rdata")
 
 # e.g. SAVE BY ISLAND PER YEAR
 OUTPUT_LEVEL<-c("REGION","ISLAND", "ANALYSIS_YEAR", "METHOD")
-dp<-Calc_Pooled_Simple(dps$Mean, dps$SampleVar, data.cols, OUTPUT_LEVEL, "AREA_HA")
+dp<-Calc_Pooled_Simple(dps$Mean, dps$SampleVar, data.cols, OUTPUT_LEVEL, "AREA_HA_2023")
 save(dp, file="data_pooled_is_yr.Rdata")
 
 # e.g. SAVE BY ISLAND POOLING ALL YEARS' DATA
 OUTPUT_LEVEL<-c("REGION","ISLAND", "METHOD")
-dp<-Calc_Pooled_Simple(dps$Mean, dps$SampleVar, data.cols, OUTPUT_LEVEL, "AREA_HA")
+dp<-Calc_Pooled_Simple(dps$Mean, dps$SampleVar, data.cols, OUTPUT_LEVEL, "AREA_HA_2023")
 save(dp, file="data_pooled_is.Rdata")
 
 # e.g. SAVE BY ISLAND AND SECTOR PER YEAR
 OUTPUT_LEVEL<-c("REGION","ISLAND", "ANALYSIS_SEC", "ANALYSIS_YEAR", "METHOD")
-dp<-Calc_Pooled_Simple(dps$Mean, dps$SampleVar, data.cols, OUTPUT_LEVEL, "AREA_HA")
+dp<-Calc_Pooled_Simple(dps$Mean, dps$SampleVar, data.cols, OUTPUT_LEVEL, "AREA_HA_2023")
 save(dp, file="data_pooled_SEC_yr.Rdata")
 
 # e.g. SAVE BY REGION PER YEAR
 OUTPUT_LEVEL<-c("REGION", "ANALYSIS_YEAR", "METHOD") 
-dp<-Calc_Pooled_Simple(dps$Mean, dps$SampleVar, data.cols, OUTPUT_LEVEL, "AREA_HA")
+dp<-Calc_Pooled_Simple(dps$Mean, dps$SampleVar, data.cols, OUTPUT_LEVEL, "AREA_HA_2023")
 save(dp, file="MONREPdata_pooled_reg.rdata")
 
 
