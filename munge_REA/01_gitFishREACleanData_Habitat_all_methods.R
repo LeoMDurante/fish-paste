@@ -196,8 +196,7 @@ wd<-droplevels(x)
 # Expand rows so that each row represents one fish
 wd_habitat_MHI <- subset(wd, wd$REGION %in% c("MHI")) %>%
   filter(!HABITAT_CODE %in% c("UNKNOWN", "UNK", "USO")) %>%
-  distinct(DATE_, OBS_YEAR, METHOD, SITE, REEF_ZONE, ISLAND, HABITAT_CODE, DEPTH_BIN,
-           LATITUDE, LONGITUDE, DEPTH) %>%
+  distinct(DATE_, OBS_YEAR, METHOD, SITE, REEF_ZONE, ISLAND, REP, DIVER, HABITAT_CODE, ComplexityValue, COMPLEXITY, MAX_HEIGHT, MEAN_SH, SD_SH_DIFF, DEPTH_BIN, LATITUDE, LONGITUDE, DEPTH) %>%
   mutate(
     HABITAT_CODE2 = case_when(
       HABITAT_CODE %in% c("AGR", "APS", "SAG", "MIX") ~ "AGR_APS_SAG_MIX",
@@ -215,13 +214,13 @@ habitat_props <- wd_habitat_MHI %>%
   mutate(proportion_perc = 100*(count / sum(count))) %>%
   ungroup()
 
-#Sampling domain: Hard-bottom habitat in 0 to 30-m depths
 habitat_props2 <- wd_habitat_MHI %>%
   dplyr::group_by(ISLAND, HABITAT_CODE2) %>%
   dplyr::summarize(count = n()) %>%
   dplyr::group_by(ISLAND) %>%
   mutate(proportion_perc = 100*(count / sum(count))) %>%
   ungroup()
+
 
 # Depth zone (shallow 0–6 m, mid 6–18 m, deep 18–30 m)
 habitat_props_depth <- wd_habitat_MHI %>%
@@ -234,7 +233,6 @@ habitat_props_depth <- wd_habitat_MHI %>%
 
 save(wd_habitat_MHI, file= file.path(root_dir,"munge_REA/TMPwd_habitat_MHI.Rdata"))  #Save clean working data for each fish being a row
 save(habitat_props, file= file.path(root_dir,"munge_REATMPwd_habitat_MHI_summ.Rdata"))  #Save clean working data for each fish being a row
-save(habitat_props2, file= file.path(root_dir,"munge_REATMPwd_habitat_MHI_summ2.Rdata"))  #Save clean working data for each fish being a row
 save(habitat_props_depth, file= file.path(root_dir,"munge_REATMPwd_habitat_MHI_depth_summ.Rdata"))  #Save clean working data for each fish being a row
 
 
@@ -288,7 +286,7 @@ ggplot() +
   geom_sf(data = shape_data, fill = "gray95", color = "black") +
   
   # Habitat points using LONGITUDE and LATITUDE from the main data
-  geom_point(data = wd_habitat_MHI, aes(x = LONGITUDE, y = LATITUDE, color = HABITAT_CODE2), size = 2) +
+  geom_point(data = wd_habitat_MHI, aes(x = LONGITUDE, y = LATITUDE, color = HABITAT_CODE2), size = 1) +
 
   # Pie charts per island
   geom_arc_bar(
@@ -324,6 +322,7 @@ ggplot() +
     fill = "Habitat Type"
   )
 
+root_dir <- this.path::here(..=2)
 ggsave(  filename = file.path(root_dir, "Mapping_tools/03_Outputs/Grouped_habitat_code_map.png"),
   width = 8,
   height = 6,
@@ -333,29 +332,29 @@ ggsave(  filename = file.path(root_dir, "Mapping_tools/03_Outputs/Grouped_habita
 
 #-- Let's get sediment height data on each site/diver so we can calculate and average among divers --#
 
-wd_SH_complex <- subset(wd, wd$REGION %in% c("MHI")) %>%
-  filter(!HABITAT_CODE %in% c("UNKNOWN", "UNK")) %>%
-  filter(!MEAN_SH %in% c("NaN") & !SD_SH_DIFF %in% c("NaN")) %>%
-  distinct(METHOD, DATE_, SITE, DEPTH, DEPTH_BIN, ISLAND, LATITUDE, LONGITUDE, REP, DIVER, HABITAT_CODE, MEAN_SH, SD_SH_DIFF, COMPLEXITY, ComplexityValue)
-
-
-wd_SH_complex_means <- wd_SH_complex %>%
-  dplyr::group_by(METHOD, DATE_, SITE, ISLAND, LATITUDE, LONGITUDE, HABITAT_CODE) %>%
+wd_SH_complex_means <- wd_habitat_MHI %>%
+  dplyr::group_by(METHOD, DATE_, OBS_YEAR, SITE, ISLAND, LATITUDE, LONGITUDE, HABITAT_CODE) %>%
   dplyr::summarise(MEAN_DEPTH = mean(DEPTH, na.rm=T),
             NUMBER_DIVERS = length(unique(DIVER)),
             MEAN_MEAN_SH = mean(MEAN_SH, na.rm = T),
             MEAN_SD_SH_DIFF = mean(SD_SH_DIFF, na.rm=T),
-            MEAN_COMPLEXITY = mean(ComplexityValue, na.rm =T))
+            MEAN_COMPLEXITY = mean(ComplexityValue, na.rm =T),
+            MEAN_MAX_HEIGHT = mean(MAX_HEIGHT, na.rm =T))
 
 
 #Checking for duplicates form the same site
 site_duplicates <- wd_SH_complex_means %>%
+  filter(METHOD == "nSPC") %>%
   group_by(SITE) %>%
   filter(n() > 1) %>%
   ungroup()
 #There are currently 67 sites where divers allocated different habitats for the replicates A and B.
+#But that is because they recroded a different habitat for nSPC and nSPC-CCR methods
+#So use only nSPC
 
-root_dir <<- this.path::here(..=2)
+wd_SH_complex_means <- wd_SH_complex_means %>%
+  filter(METHOD == "nSPC")
+
 write.csv(wd_SH_complex_means, file= file.path(root_dir,"Mapping_tools/01_Data/NOAA_diver_survey_REA/Mean_SH_complexity_REA.csv"), row.names = FALSE)  #Save clean working data for each fish being a row
 
 
