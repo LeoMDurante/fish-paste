@@ -12,7 +12,7 @@ load("TMPwd_ind_fish.Rdata")
 
 ## FILTER BY LOCATION, YEARS, METHOD, AND OBS_TYPE HERE!
 #wd_ind_fish[!wd_ind_fish$OBS_TYPE %in% c("U", "I", "N"), ]$COUNT<-0 #These are the data taken within the standardized survey methodology, other categories vary by diver, quantity of underwater work etc. 
-wd_ind_fish<-subset(wd_ind_fish, wd_ind_fish$METHOD %in% c("nSPC")) #Filter for stationary point count methodology
+#wd_ind_fish<-subset(wd_ind_fish, wd_ind_fish$METHOD %in% c("nSPC")) #Filter for stationary point count methodology
 wd_ind_fish_MHI<-subset(wd_ind_fish, wd_ind_fish$REGION %in% c("MHI")) #Leave only data from the MHI
 wd_ind_fish_MHI<-droplevels(wd_ind_fish_MHI) #Drop all other levels
 
