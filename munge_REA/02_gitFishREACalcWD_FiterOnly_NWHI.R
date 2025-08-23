@@ -17,9 +17,12 @@ load(file.path(root_dir,"TMPwd_ind_fish.Rdata"))
 ## FILTER BY LOCATION, YEARS, METHOD, AND OBS_TYPE HERE!
 #wd_ind_fish[!wd_ind_fish$OBS_TYPE %in% c("U", "I", "N"), ]$COUNT<-0 #These are the data taken within the standardized survey methodology, other categories vary by diver, quantity of underwater work etc. 
 wd_ind_fish<-subset(wd_ind_fish, wd_ind_fish$METHOD %in% c("nSPC")) #Filter for stationary point count methodology
-#Fiter for surveys undertaken in the NWHI
-wd_ind_fish<-subset(wd_ind_fish, wd_ind_fish$REGION_NAME %in% c("Northwestern Hawaiian Islands Pacific Remote Island Areas", 
-                                                                "Northwestern Hawaiian Islands"))
+#Fiter for surveys undertaken in the NWHI and Johnston Atoll
+wd_ind_fish <- subset(wd_ind_fish, 
+                      (wd_ind_fish$REGION_NAME %in% c("Northwestern Hawaiian Islands Pacific Remote Island Areas", 
+                                                      "Northwestern Hawaiian Islands")) |
+                        (wd_ind_fish$ISLAND == "Johnston"))
+
 wd_ind_fish_NWHI <-droplevels(wd_ind_fish) #Drop all other levels
 
 root_dir2 <- this.path::here(..=2) #Root directory is two folders above where this script is
